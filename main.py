@@ -97,7 +97,7 @@ def plot(objects: list[CoopObject], name: str):
   for target in TargetType:
     # プロットの初期化
     plt.xlim([800, -800])
-    plt.ylim([-800, 800])
+    plt.ylim([-850, 850])
     
     for water_level in WaterLevel:
       # Cmnはどうせ使わないので無視
