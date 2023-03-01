@@ -167,11 +167,13 @@ if __name__ == "__main__":
     print("Developed by @tkgling")
 
     files = os.listdir("xmls")
-
     for file in files:
-        path = f"xmls/{file}"
-        name = os.path.splitext(file)[0]
-
-        xmlp = et.XMLParser(encoding="utf-8")
-        xml = et.parse(path, parser=xmlp)
-        plot(objects(xml), name)
+        if "bcett.xml" in file:
+            print(file)
+            path = f"xmls/{file}"
+            name = os.path.splitext(file)[0]
+    
+            xmlp = et.XMLParser(encoding="utf-8")
+            xml = et.parse(path, parser=xmlp)
+            plot(objects(xml), name)
+    
