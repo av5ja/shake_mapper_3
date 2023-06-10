@@ -132,14 +132,14 @@ def plot(objects: list[CoopObject], name: str):
                     objects,
                 )
             )
-            print(water_level, target.value, len(elements))
-            for object in elements:
-                plt.scatter(
-                    object.position.x,
-                    object.position.y,
-                    c=color(object),
-                    marker=marker(object),
-                )
+            if len(elements) != 0:
+                for object in elements:
+                    plt.scatter(
+                        object.position.x,
+                        object.position.y,
+                        c=color(object),
+                        marker=marker(object),
+                    )
         plt.tick_params(
             labelbottom=False,
             labelleft=False,
@@ -160,8 +160,7 @@ def plot(objects: list[CoopObject], name: str):
             )
             plt.close()
         except SystemError:
-            print("SystemError")
-
+            print("SystemError", water_level, target.value)
 
 if __name__ == "__main__":
     print("ShakeMapper for Splatoon 3")
@@ -170,6 +169,7 @@ if __name__ == "__main__":
     files = os.listdir("yamls")
     for file in files:
         if "bcett.yaml" in file:
+            print(f"Processing {file}")
             path = f"yamls/{file}"
             name = os.path.splitext(file)[0]
             # 余計な短縮表現を省略する
