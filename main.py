@@ -2,6 +2,9 @@
 from multiprocessing.sharedctypes import Value
 from numbers import Number
 import xml.etree.ElementTree as et
+from yaml import SafeLoader
+# import yaml.etree.ElementTree as et
+import yaml
 import matplotlib.pyplot as plt
 import os
 import sys
@@ -9,6 +12,12 @@ import math
 import matplotlib
 from typing import Optional
 from enum import Enum
+import xmltodict
+from awscli.customizations.cloudformation.yamlhelper import yaml_parse
+import re
+import json
+from dicttoxml import dicttoxml
+from xml.dom.minidom import parseString
 
 
 class WaterLevel(Enum):
@@ -50,12 +59,12 @@ class Position:
     y: Optional[float]
     z: Optional[float]
 
-    def __init__(self, element: et.Element):
-        translates = element.findall("C0/[@Name='Translate']/D2")
-        if len(translates) != 0:
-            self.x = float(translates[0].attrib["StringValue"]) * 10
-            self.y = float(translates[2].attrib["StringValue"]) * 10
-            self.z = float(translates[1].attrib["StringValue"]) * 10
+    def __init__(self, object: dict):
+        translates = object.get("Translate")
+        if translates != None:
+            self.x = float(translates[0]) * 10
+            self.y = float(translates[2]) * 10
+            self.z = float(translates[1]) * 10
         else:
             self.x = None
             self.y = None
@@ -67,22 +76,21 @@ class CoopObject:
     position: Position
     water_level: WaterLevel
 
-    def __init__(self, element: et.Element):
+    def __init__(self, object: dict):
         # オブジェクト名
-        self.name = element.find("A0/[@Name='Gyaml']").attrib["StringValue"]
+        self.name = object["Gyaml"]
         # 潮位
         self.water_level = WaterLevel(
-            element.find("A0/[@Name='Layer']").attrib["StringValue"]
+            object["Layer"]
         )
         # 座標
-        self.position = Position(element)
+        self.position = Position(object)
 
 
-def objects(xml: et.ElementTree) -> list[CoopObject]:
+def objects(object: dict) -> list[CoopObject]:
     elements: list[CoopObject] = list(
-        map(lambda x: CoopObject(x), xml.findall("C1/C0/[@Name='Actors']/C1"))
+        map(lambda x: CoopObject(x), object["root"]["Actors"])
     )
-
     # オブジェクト名ごとにソートする
     elements.sort(key=lambda x: x.name)
     return elements
@@ -122,7 +130,6 @@ def plot(objects: list[CoopObject], name: str):
         plt.gca().set_aspect("equal")
 
         for water_level in WaterLevel:
-
             # コンテナの位置は常に表示する
             banks = list(filter(lambda x: x.name == "CoopIkuraBank", objects))
             for bank in banks:
@@ -152,28 +159,29 @@ def plot(objects: list[CoopObject], name: str):
             right=False,
             top=False,
         )
-        plt.savefig(
-            f"outputs/{name}/{target.value}.png",
-            dpi=300,
-            transparent=True,
-            bbox_inches="tight",
-            pad_inches=0.0,
-        )
-        plt.close()
+        try:
+            plt.savefig(
+                f"outputs/{name}/{target.value}.png",
+                dpi=300,
+                transparent=True,
+                bbox_inches="tight",
+                pad_inches=0.0,
+            )
+            plt.close()
+        except SystemError:
+            print("SystemError")
 
 
 if __name__ == "__main__":
     print("ShakeMapper for Splatoon 3")
     print("Developed by @tkgling")
 
-    files = os.listdir("xmls")
+    files = os.listdir("yamls")
     for file in files:
-        if "bcett.xml" in file:
-            print(file)
-            path = f"xmls/{file}"
+        if "bcett.yaml" in file:
+            path = f"yamls/{file}"
             name = os.path.splitext(file)[0]
-    
-            xmlp = et.XMLParser(encoding="utf-8")
-            xml = et.parse(path, parser=xmlp)
-            plot(objects(xml), name)
-    
+            # 余計な短縮表現を省略する
+            yaml_str: str = re.sub("!u|!l", "", open(path, "r", encoding="utf-8").read())
+            yaml_dict: dict = yaml.safe_load(yaml_str)
+            plot(objects(yaml_dict), name)
