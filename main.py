@@ -1,9 +1,5 @@
-# from ast import List
 from multiprocessing.sharedctypes import Value
 from numbers import Number
-import xml.etree.ElementTree as et
-from yaml import SafeLoader
-# import yaml.etree.ElementTree as et
 import yaml
 import matplotlib.pyplot as plt
 import os
@@ -12,12 +8,7 @@ import math
 import matplotlib
 from typing import Optional
 from enum import Enum
-import xmltodict
-from awscli.customizations.cloudformation.yamlhelper import yaml_parse
 import re
-import json
-from dicttoxml import dicttoxml
-from xml.dom.minidom import parseString
 
 
 class WaterLevel(Enum):
