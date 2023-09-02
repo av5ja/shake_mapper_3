@@ -2,6 +2,8 @@
 
 Python script for describing objects and maps of Salmon Run in Splatoon 3.
 
+> This repository does not contain any contenes copyrighted by Nintendo Co., Ltd.
+
 ## Requirements
 
 - Python3
