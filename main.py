@@ -115,9 +115,9 @@ def plot(objects: list[CoopObject], name: str):
         os.mkdir(f"outputs/{name}")
     for target in TargetType:
         # プロットの初期化
-        plt.xlim([900, -900])
-        plt.ylim([-900, 900])
-        plt.figure(figsize=(4, 4))
+        plt.xlim([1100, -1100])
+        plt.ylim([-1100, 1100])
+        plt.figure(figsize=(8, 8))
         plt.gca().set_aspect("equal")
 
         for water_level in WaterLevel:
@@ -154,9 +154,9 @@ def plot(objects: list[CoopObject], name: str):
             plt.savefig(
                 f"outputs/{name}/{target.value}.png",
                 dpi=300,
-                transparent=True,
+                transparent=False,
                 bbox_inches="tight",
-                pad_inches=0.0,
+                pad_inches=0.1,
             )
             plt.close()
         except SystemError:
